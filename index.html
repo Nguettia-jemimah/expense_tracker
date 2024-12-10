@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Expense Tracker</title>
+
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      border: 1px solid #ddd;
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .summary {
+      margin-bottom: 20px;
+    }
+
+    .summary p {
+      margin: 5px 0;
+      font-size: 18px;
+    }
+
+    form {
+      margin-bottom: 20px;
+    }
+
+    form input {
+      margin: 5px 0;
+      width: 90%;
+      padding: 8px;
+      font-size: 16px;
+    }
+
+    form button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      display: flex;
+      justify-content: space-between;
+      margin: 5px 0;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+  </style>
+
+  
+</head>
+<body>
+  <div class="container">
+    <h1>Expense Tracker</h1>
+    <div class="summary">
+      <p>Balance: <span id="balance">₵0.00</span></p>
+      <p>Income: <span id="income">₵0.00</span></p>
+      <p>Expenses: <span id="expenses">₵0.00</span></p>
+    </div>
+    <form id="form">
+      <input type="text" id="description" placeholder="Description" required>
+      <input type="number" id="amount" placeholder="Amount (use - for expenses)" required>
+      <button type="submit">Add Transaction</button>
+    </form>
+    <ul id="transactions"></ul>
+  </div>
+
+
+  <script>
+    const form = document.getElementById("form");
+    const balanceEl = document.getElementById("balance");
+    const incomeEl = document.getElementById("income");
+    const expensesEl = document.getElementById("expenses");
+    const transactionsEl = document.getElementById("transactions");
+
+    let balance = 0, income = 0, expenses = 0;
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      const description = document.getElementById("description").value;
+      const amount = parseFloat(document.getElementById("amount").value);
+
+      if (isNaN(amount)) {
+        alert("Please enter a valid number.");
+        return;
+      }
+
+      if (amount > 0) income += amount;
+      else expenses += amount;
+
+      balance = income + expenses;
+
+      const li = document.createElement("li");
+      li.textContent = `${description} - ₵${amount}`;
+      transactionsEl.appendChild(li);
+
+      balanceEl.textContent = `₵${balance.toFixed(2)}`;
+      incomeEl.textContent = `₵${income.toFixed(2)}`;
+      expensesEl.textContent = `₵${Math.abs(expenses).toFixed(2)}`;
+
+      form.reset();
+    });
+  </script>
+</body>
+</html>
