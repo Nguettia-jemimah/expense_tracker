@@ -3,9 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simple Expense Tracker</title>
-
-
+  <title>Simple Expense Tracker!</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -69,16 +67,14 @@
       border-radius: 5px;
     }
   </style>
-
-  
 </head>
 <body>
   <div class="container">
     <h1>Expense Tracker</h1>
     <div class="summary">
-      <p>Balance: <span id="balance">₵0.00</span></p>
-      <p>Income: <span id="income">₵0.00</span></p>
-      <p>Expenses: <span id="expenses">₵0.00</span></p>
+      <p>Balance: <span id="balance">$0.00</span></p>
+      <p>Income: <span id="income">$0.00</span></p>
+      <p>Expenses: <span id="expenses">$0.00</span></p>
     </div>
     <form id="form">
       <input type="text" id="description" placeholder="Description" required>
@@ -86,9 +82,10 @@
       <button type="submit">Add Transaction</button>
     </form>
     <ul id="transactions"></ul>
+    <ul id="transactions"></ul>
+<button id="clearAll" style="background-color: red; color: white; margin-top: 10px;">Clear All</button>
+
   </div>
-
-
   <script>
     const form = document.getElementById("form");
     const balanceEl = document.getElementById("balance");
@@ -96,10 +93,58 @@
     const expensesEl = document.getElementById("expenses");
     const transactionsEl = document.getElementById("transactions");
 
+    // Variables for summary
     let balance = 0, income = 0, expenses = 0;
 
+    // Load data from localStorage on page load
+    function loadData() {
+      const storedTransactions = JSON.parse(localStorage.getItem("transactions")) || [];
+      const storedSummary = JSON.parse(localStorage.getItem("summary")) || { balance: 0, income: 0, expenses: 0 };
+
+      balance = storedSummary.balance;
+      income = storedSummary.income;
+      expenses = storedSummary.expenses;
+
+      // Update the summary on the screen
+      updateSummary();
+
+      // Render the stored transactions
+      storedTransactions.forEach(transaction => {
+        addTransactionToDOM(transaction.description, transaction.amount);
+      });
+    }
+
+    // Save data to localStorage
+    function saveData() {
+      const transactions = Array.from(transactionsEl.children).map(li => {
+        const [description, amount] = li.textContent.split(" - $");
+        return { description, amount: parseFloat(amount) };
+      });
+
+      const summary = { balance, income, expenses };
+
+      localStorage.setItem("transactions", JSON.stringify(transactions));
+      localStorage.setItem("summary", JSON.stringify(summary));
+    }
+
+    // Add transaction to DOM
+    function addTransactionToDOM(description, amount) {
+      const li = document.createElement("li");
+      li.textContent = `${description} - $${amount}`;
+      transactionsEl.appendChild(li);
+    }
+
+    // Update the summary on the screen
+    function updateSummary() {
+      balanceEl.textContent = `$${balance.toFixed(2)}`;
+      incomeEl.textContent = `$${income.toFixed(2)}`;
+      expensesEl.textContent = `$${Math.abs(expenses).toFixed(2)}`;
+    }
+
+    // Form submission handler
     form.addEventListener("submit", function (event) {
       event.preventDefault();
+
       const description = document.getElementById("description").value;
       const amount = parseFloat(document.getElementById("amount").value);
 
@@ -108,21 +153,44 @@
         return;
       }
 
+      // Update variables and add transaction
       if (amount > 0) income += amount;
       else expenses += amount;
 
       balance = income + expenses;
 
-      const li = document.createElement("li");
-      li.textContent = `${description} - ₵${amount}`;
-      transactionsEl.appendChild(li);
+      addTransactionToDOM(description, amount);
 
-      balanceEl.textContent = `₵${balance.toFixed(2)}`;
-      incomeEl.textContent = `₵${income.toFixed(2)}`;
-      expensesEl.textContent = `₵${Math.abs(expenses).toFixed(2)}`;
-
+      updateSummary();
+      saveData(); // Save updated data to localStorage
       form.reset();
     });
+
+
+    //to clear data history
+
+    const clearAllBtn = document.getElementById("clearAll");
+
+  clearAllBtn.addEventListener("click", function () {
+    // Clear the transactions from the DOM
+    transactionsEl.innerHTML = "";
+
+    // Reset variables
+    balance = 0;
+    income = 0;
+    expenses = 0;
+
+    // Update the UI
+    updateSummary();
+
+    // Clear localStorage
+    localStorage.removeItem("transactions");
+    localStorage.removeItem("summary");
+  });
+
+
+    // Load data when the page loads
+    loadData();
   </script>
 </body>
 </html>
